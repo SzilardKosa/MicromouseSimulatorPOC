@@ -109,5 +109,22 @@ namespace MicromouseSimulatorPOC.Controllers
             // According to the conventions, we have to return HTTP 204 No Content.
             return NoContent();
         }
+
+        // Run code by id and send back stdout
+        [HttpGet("{id}/result")]
+        public ActionResult<RunResult> RunUserCode(string id)
+        {
+            try
+            {
+                var result = _service.RunUserCode(id);
+
+                return Ok(result);
+            }
+            catch (DocumentDoesntExistsException)
+            {
+                // Handle error if the user code to update doesn't exists.
+                return BadRequest("No user code exists with the given ID!");
+            }
+        }
     }
 }

@@ -4,8 +4,10 @@ using MicromouseSimulatorPOC.Models;
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MicromouseSimulatorPOC.Services
@@ -18,6 +20,12 @@ namespace MicromouseSimulatorPOC.Services
             {"C", "main.c" },
             {"C++", "main.cpp" },
             {"Python", "main.py" }
+        };
+        private Dictionary<string, string> languageToImageName = new Dictionary<string, string>()
+        {
+            {"C", "my-c-app" },
+            {"C++", "my-cpp-app" },
+            {"Python", "my-python-app" }
         };
 
         public UserCodeService(IMongoRepository<UserCode> userCodeRepsitory) : base(userCodeRepsitory)
@@ -91,9 +99,57 @@ namespace MicromouseSimulatorPOC.Services
             _userCodeRepsitory.DeleteById(id);
         }
 
-        public void RunUserCode(string id)
+        public RunResult RunUserCode(string id)
         {
-            throw new NotImplementedException();
+            var document = _userCodeRepsitory.FindById(id);
+            if (document == null)
+            {
+                throw new DocumentDoesntExistsException();
+            }
+            var runResult = new RunResult();
+
+            runResult.Result = RunDockerContainer(document);
+
+            return runResult;
+        }
+
+        private string RunDockerContainer(UserCode document)
+        {
+            // got it from stackoverflow 
+            // https://stackoverflow.com/questions/45308991/how-to-call-docker-run-from-c-sharp-application
+            StringBuilder output = new StringBuilder();
+
+            var info = new ProcessStartInfo("docker");
+            var folderPath = Path.GetDirectoryName(document.filePath);
+            var imageName = languageToImageName[document.Language];
+            info.Arguments = $"run --rm -it -v {folderPath}:/usr/src/app {imageName}";
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+
+            using (var process = new Process())
+            {
+                process.StartInfo = info;
+                process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+                {
+                    if (!String.IsNullOrEmpty(e.Data))
+                    {
+                        output.Append(e.Data);
+                    }
+                });
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.WaitForExit(20000);
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+                process.Close();
+            }
+
+            return output.ToString();
         }
 
     }

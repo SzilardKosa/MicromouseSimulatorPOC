@@ -8,6 +8,6 @@ namespace MicromouseSimulatorPOC.Interfaces
 {
     public interface IUserCodeService : IBaseService<UserCode>
     {
-        void RunUserCode(string id);
+        RunResult RunUserCode(string id);
     }
 }
