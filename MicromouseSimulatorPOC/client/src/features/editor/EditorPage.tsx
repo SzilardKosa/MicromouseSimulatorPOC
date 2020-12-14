@@ -34,55 +34,59 @@ const EditorPage = () => {
     <Container maxWidth="lg">
       <Grid container spacing={3}>
         {/* row 1*/}
-        <Grid container item xs={12} spacing={3}>
-          <Grid item xs={12} md={6} lg={8}>
-            <TextField
-              value="Hello world in Python"
-              margin="normal"
-              InputProps={{
-                classes: {
-                  input: classes.resize
-                }
-              }}
-              id="name"
-              name="name"
-              type="text"
-            />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={6}
-            lg={4}
-            container
-            direction="row"
-            justify="space-between"
-            alignItems="flex-end"
-          >
-            <div>
-              <Button variant="contained" color="secondary" size="large">
-                <PlayArrowIcon />
-              </Button>
-              <Button variant="contained" color="primary" size="large" className={classes.save}>
-                <SaveIcon />
-              </Button>
-            </div>
-            <EditorSettings />
+        <Grid item xs={12}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6} lg={8}>
+              <TextField
+                value="Hello world in Python"
+                margin="normal"
+                InputProps={{
+                  classes: {
+                    input: classes.resize
+                  }
+                }}
+                id="name"
+                name="name"
+                type="text"
+              />
+            </Grid>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              lg={4}
+              container
+              direction="row"
+              justify="space-between"
+              alignItems="flex-end"
+            >
+              <div>
+                <Button variant="contained" color="secondary" size="large">
+                  <PlayArrowIcon />
+                </Button>
+                <Button variant="contained" color="primary" size="large" className={classes.save}>
+                  <SaveIcon />
+                </Button>
+              </div>
+              <EditorSettings />
+            </Grid>
           </Grid>
         </Grid>
         {/* row 2*/}
-        <Grid container item xs={12} spacing={3}>
-          <Grid item xs={12} md={6} lg={8}>
-            <EditorIDE />
-          </Grid>
-          <Grid item xs={12} md={6} lg={4}>
-            <TextField
-              id="outlined-multiline-static"
-              label="Output"
-              multiline
-              variant="outlined"
-              fullWidth
-            />
+        <Grid item xs={12}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6} lg={8}>
+              <EditorIDE />
+            </Grid>
+            <Grid item xs={12} md={6} lg={4}>
+              <TextField
+                id="outlined-multiline-static"
+                label="Output"
+                multiline
+                variant="outlined"
+                fullWidth
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
