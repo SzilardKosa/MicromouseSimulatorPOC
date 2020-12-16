@@ -1,5 +1,5 @@
 export default interface Program {
-  id: string
+  id?: string
   name: string
   language: Languages
   codeText: string

@@ -16,9 +16,6 @@ const useStyles = makeStyles((theme: Theme) =>
       fontSize: theme.typography.h5.fontSize,
       [theme.breakpoints.up('sm')]: {
         fontSize: theme.typography.h4.fontSize
-      },
-      [theme.breakpoints.up('md')]: {
-        fontSize: theme.typography.h3.fontSize
       }
     },
     save: {

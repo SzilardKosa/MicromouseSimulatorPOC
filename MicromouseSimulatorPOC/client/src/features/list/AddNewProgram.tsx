@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { unwrapResult } from '@reduxjs/toolkit'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Dialog from '@material-ui/core/Dialog'
@@ -11,13 +13,36 @@ import { useForm } from 'react-hook-form'
 import ReactHookFormSelect from '../../common/ReactHookFormSelect'
 import { Fab } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
+import { addNewProgram } from './listSlice'
+import { AppDispatch } from '../../app/store'
+
+interface AddNewForm {
+  name: string
+  language: Languages
+}
 
 const AddNewProgram = () => {
   const [open, setOpen] = React.useState(false)
   const { register, handleSubmit, errors, control } = useForm()
-  const onSubmit = (data: any) => {
-    console.log(data)
-    console.log(errors)
+  const dispatch: AppDispatch = useDispatch()
+  const [addRequestStatus, setAddRequestStatus] = useState<'idle' | 'pending'>('idle')
+
+  const canSave = addRequestStatus === 'idle'
+
+  const onSubmit = async (data: AddNewForm) => {
+    const { name, language } = data
+    if (canSave) {
+      try {
+        setAddRequestStatus('pending')
+        const resultAction = await dispatch(addNewProgram({ name, language, codeText: ' ' }))
+        unwrapResult(resultAction)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setAddRequestStatus('idle')
+        setOpen(false)
+      }
+    }
   }
 
   const handleClickOpen = () => {
