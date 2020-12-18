@@ -1,5 +1,10 @@
-import React from 'react'
-import { Container, createStyles } from '@material-ui/core'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState } from '../../app/store'
+import { fetchProgram, runProgram, selectProgram, updateName, updateProgram } from './editorSlice'
+import { useParams } from 'react-router-dom'
+
+import { Box, CircularProgress, Container, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid/Grid'
 import TextField from '@material-ui/core/TextField/TextField'
 import makeStyles from '@material-ui/core/styles/makeStyles'
@@ -20,75 +25,132 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     save: {
       marginLeft: theme.spacing(3)
+    },
+    box: {
+      width: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }
   })
 )
 
 const EditorPage = () => {
+  const params = useParams<{ id: string }>()
   const classes = useStyles()
 
-  return (
-    <Container maxWidth="lg">
-      <Grid container spacing={3}>
-        {/* row 1*/}
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <TextField
-                value="Hello world in Python"
-                margin="normal"
-                InputProps={{
-                  classes: {
-                    input: classes.resize
-                  }
-                }}
-                id="name"
-                name="name"
-                type="text"
-              />
+  const dispatch = useDispatch()
+  const program = useSelector(selectProgram)
+  const fetchStatus = useSelector((state: RootState) => state.editor.loadingStatus)
+  const error = useSelector((state: RootState) => state.editor.loadingError)
+  const result = useSelector((state: RootState) => state.editor.result)
+
+  useEffect(() => {
+    if (fetchStatus !== 'loading') {
+      dispatch(fetchProgram(params.id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id])
+
+  const handleRun = () => {
+    if (program) {
+      dispatch(runProgram(program.id!))
+    }
+  }
+
+  const handleSave = () => {
+    if (program) {
+      dispatch(updateProgram(program))
+    }
+  }
+
+  let content
+
+  if (fetchStatus === 'loading') {
+    content = (
+      <Box className={classes.box}>
+        <CircularProgress color="secondary" />
+      </Box>
+    )
+  } else if (fetchStatus === 'succeeded') {
+    content = (
+      <Container maxWidth="lg">
+        <Grid container spacing={3}>
+          {/* row 1*/}
+          <Grid item xs={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6} lg={8}>
+                <TextField
+                  value={program?.name}
+                  onChange={event => {
+                    dispatch(updateName(event.target.value))
+                  }}
+                  margin="normal"
+                  InputProps={{
+                    classes: {
+                      input: classes.resize
+                    }
+                  }}
+                  id="name"
+                  name="name"
+                  type="text"
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={4}
+                container
+                direction="row"
+                justify="space-between"
+                alignItems="flex-end"
+              >
+                <div>
+                  <Button variant="contained" color="secondary" size="large" onClick={handleRun}>
+                    <PlayArrowIcon />
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleSave}
+                    className={classes.save}
+                  >
+                    <SaveIcon />
+                  </Button>
+                </div>
+                <EditorSettings />
+              </Grid>
             </Grid>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              lg={4}
-              container
-              direction="row"
-              justify="space-between"
-              alignItems="flex-end"
-            >
-              <div>
-                <Button variant="contained" color="secondary" size="large">
-                  <PlayArrowIcon />
-                </Button>
-                <Button variant="contained" color="primary" size="large" className={classes.save}>
-                  <SaveIcon />
-                </Button>
-              </div>
-              <EditorSettings />
+          </Grid>
+          {/* row 2*/}
+          <Grid item xs={12}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={6} lg={8}>
+                <EditorIDE program={program!} />
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <TextField
+                  InputLabelProps={{ disableAnimation: true }}
+                  id="outlined-multiline-static"
+                  label="Output"
+                  value={result ? result.result : ''}
+                  multiline
+                  variant="outlined"
+                  fullWidth
+                />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
-        {/* row 2*/}
-        <Grid item xs={12}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={8}>
-              <EditorIDE />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextField
-                id="outlined-multiline-static"
-                label="Output"
-                multiline
-                variant="outlined"
-                fullWidth
-              />
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Container>
-  )
+      </Container>
+    )
+  } else if (fetchStatus === 'failed') {
+    content = <div>{error}</div>
+  }
+
+  return <React.Fragment>{content}</React.Fragment>
 }
 
 export default EditorPage

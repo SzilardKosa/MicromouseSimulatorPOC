@@ -135,7 +135,7 @@ namespace MicromouseSimulatorPOC.Services
                 {
                     if (!String.IsNullOrEmpty(e.Data))
                     {
-                        output.Append(e.Data);
+                        output.Append($"{e.Data}\n");
                     }
                 });
 

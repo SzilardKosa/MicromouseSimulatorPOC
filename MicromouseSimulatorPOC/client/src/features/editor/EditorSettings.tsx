@@ -11,6 +11,9 @@ import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { fontSizes, themes } from './EditorIDE'
 import SettingsIcon from '@material-ui/icons/Settings'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState } from '../../app/store'
+import { updateFontSize, updateTheme } from './editorSlice'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -28,6 +31,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const EditorSettings = () => {
   const classes = useStyles()
   const [open, setOpen] = React.useState(false)
+
+  const fontSize = useSelector((state: RootState) => state.editor.fontSize)
+  const theme = useSelector((state: RootState) => state.editor.theme)
+  const dispatch = useDispatch()
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -51,8 +58,8 @@ const EditorSettings = () => {
               <Select
                 labelId="theme-label"
                 id="theme"
-                value={themes[0]}
-                onChange={(event: React.ChangeEvent<{ value: unknown }>) => console.log(event)}
+                value={theme}
+                onChange={event => dispatch(updateTheme(event.target.value))}
               >
                 {themes.map(theme => (
                   <MenuItem value={theme} key={theme}>
@@ -66,8 +73,8 @@ const EditorSettings = () => {
               <Select
                 labelId="font-label"
                 id="font"
-                value={fontSizes[0]}
-                onChange={(event: React.ChangeEvent<{ value: unknown }>) => console.log(event)}
+                value={fontSize}
+                onChange={event => dispatch(updateFontSize(event.target.value))}
               >
                 {fontSizes.map(size => (
                   <MenuItem value={size} key={size}>
@@ -79,9 +86,6 @@ const EditorSettings = () => {
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Cancel
-          </Button>
           <Button onClick={handleClose} color="primary">
             Ok
           </Button>
