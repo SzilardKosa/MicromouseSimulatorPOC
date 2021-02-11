@@ -1,0 +1,5 @@
+docker build -t my-python-app .
+
+docker run --rm -it my-python-app
+
+docker run --rm -it -v D:\BME\Docker\simple-examples\simple-python-app\volume:/usr/src/app my-python-app

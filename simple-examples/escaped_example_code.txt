@@ -1,0 +1,8 @@
+Python
+"print(\"Hello World!\")"
+
+C
+"#include <stdio.h>\nint main() {\n   printf(\"Hello, World!\");\n   return 0;\n}"
+
+C++
+"#include <iostream>\nint main() {\n    std::cout << \"Hello World!\";\n    return 0;\n}"

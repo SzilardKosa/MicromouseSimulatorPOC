@@ -1,0 +1,5 @@
+docker build -t my-c-app .
+
+docker run --rm -it my-c-app
+
+docker run --rm -it -v D:\BME\Docker\simple-examples\simple-c-app\volume:/usr/src/app my-c-app
