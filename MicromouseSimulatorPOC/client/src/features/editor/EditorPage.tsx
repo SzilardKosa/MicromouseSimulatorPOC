@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../../app/store'
+import { AppDispatch, RootState } from '../../app/store'
 import { fetchProgram, runProgram, selectProgram, updateName, updateProgram } from './editorSlice'
 import { useParams } from 'react-router-dom'
+import { unwrapResult } from '@reduxjs/toolkit'
 
 import { Box, CircularProgress, Container, createStyles } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid/Grid'
@@ -20,18 +21,22 @@ const useStyles = makeStyles((theme: Theme) =>
     resize: {
       fontSize: theme.typography.h5.fontSize,
       [theme.breakpoints.up('sm')]: {
-        fontSize: theme.typography.h4.fontSize
-      }
+        fontSize: theme.typography.h4.fontSize,
+      },
     },
     save: {
-      marginLeft: theme.spacing(3)
+      marginLeft: theme.spacing(3),
     },
     box: {
       width: '100%',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
-    }
+      justifyContent: 'center',
+      marginTop: '2rem',
+    },
+    buttonProgress: {
+      color: 'white',
+    },
   })
 )
 
@@ -39,11 +44,13 @@ const EditorPage = () => {
   const params = useParams<{ id: string }>()
   const classes = useStyles()
 
-  const dispatch = useDispatch()
+  const dispatch: AppDispatch = useDispatch()
   const program = useSelector(selectProgram)
   const fetchStatus = useSelector((state: RootState) => state.editor.loadingStatus)
   const error = useSelector((state: RootState) => state.editor.loadingError)
   const result = useSelector((state: RootState) => state.editor.result)
+  const runStatus = useSelector((state: RootState) => state.editor.runStatus)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'pending'>('idle')
 
   useEffect(() => {
     if (fetchStatus !== 'loading') {
@@ -58,9 +65,17 @@ const EditorPage = () => {
     }
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (program) {
-      dispatch(updateProgram(program))
+      try {
+        setSaveStatus('pending')
+        const result = await dispatch(updateProgram(program))
+        unwrapResult(result)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setSaveStatus('idle')
+      }
     }
   }
 
@@ -82,14 +97,14 @@ const EditorPage = () => {
               <Grid item xs={12} md={6} lg={8}>
                 <TextField
                   value={program?.name}
-                  onChange={event => {
+                  onChange={(event) => {
                     dispatch(updateName(event.target.value))
                   }}
                   margin="normal"
                   InputProps={{
                     classes: {
-                      input: classes.resize
-                    }
+                      input: classes.resize,
+                    },
                   }}
                   id="name"
                   name="name"
@@ -108,7 +123,11 @@ const EditorPage = () => {
               >
                 <div>
                   <Button variant="contained" color="secondary" size="large" onClick={handleRun}>
-                    <PlayArrowIcon />
+                    {runStatus == 'loading' ? (
+                      <CircularProgress size={24} className={classes.buttonProgress} />
+                    ) : (
+                      <PlayArrowIcon />
+                    )}
                   </Button>
                   <Button
                     variant="contained"
@@ -117,7 +136,11 @@ const EditorPage = () => {
                     onClick={handleSave}
                     className={classes.save}
                   >
-                    <SaveIcon />
+                    {saveStatus == 'pending' ? (
+                      <CircularProgress size={24} className={classes.buttonProgress} />
+                    ) : (
+                      <SaveIcon />
+                    )}
                   </Button>
                 </div>
                 <EditorSettings />

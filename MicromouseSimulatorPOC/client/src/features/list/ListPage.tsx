@@ -12,8 +12,9 @@ const useStyles = makeStyles({
     width: '100%',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+    marginTop: '2rem',
+  },
 })
 
 const ListPage = () => {
@@ -47,7 +48,7 @@ const ListPage = () => {
       </React.Fragment>
     )
   } else if (fetchStatus === 'failed') {
-    content = <div>{error}</div>
+    content = <div>Error: {error}</div>
   }
 
   return (

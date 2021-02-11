@@ -29,7 +29,7 @@ const initialState: EditorState = {
   runStatus: 'idle',
   runError: null,
   fontSize: 14,
-  theme: 'monokai'
+  theme: 'monokai',
 }
 
 export const fetchProgram = createAsyncThunk('editor/fetchProgram', async (programId: string) => {
@@ -70,9 +70,9 @@ const editorSlice = createSlice({
     updateTheme(state, action) {
       const newTheme = action.payload
       state.theme = newTheme
-    }
+    },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder.addCase(fetchProgram.pending, (state, action) => {
       state.loadingStatus = 'loading'
       state.result = null
@@ -99,7 +99,7 @@ const editorSlice = createSlice({
       state.runStatus = 'failed'
       state.runError = action.payload
     })
-  }
+  },
 })
 
 export default editorSlice.reducer

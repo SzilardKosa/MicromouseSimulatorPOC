@@ -34,7 +34,7 @@ const AddNewProgram = () => {
     if (canSave) {
       try {
         setAddRequestStatus('pending')
-        const resultAction = await dispatch(addNewProgram({ name, language, codeText: ' ' }))
+        const resultAction = await dispatch(addNewProgram({ name, language, codeText: '' }))
         unwrapResult(resultAction)
       } catch (err) {
         console.log(err)
